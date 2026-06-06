@@ -21,5 +21,7 @@ export default async function (defaults) {
     },
   });
 
-  return compatBuild(app, buildOnce);
+  return compatBuild(app, buildOnce, {
+    useAddonAppBoot: false,
+  });
 }

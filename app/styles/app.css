@@ -1,1 +1,23 @@
 /* Ember supports plain CSS out of the box. More info: https://cli.emberjs.com/release/advanced-use/stylesheets/ */
+
+.api-check {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-width: 32rem;
+}
+
+.api-check__ok {
+  color: #137333;
+  font-weight: 600;
+}
+
+.api-check__error {
+  color: #c5221f;
+  font-weight: 600;
+}
+
+.api-check__url {
+  color: #5f6368;
+}
