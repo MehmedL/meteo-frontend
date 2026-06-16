@@ -1,0 +1,38 @@
+{{page-title "Вход"}}
+
+<section class="auth">
+  <form class="auth__card" {{on "submit" this.submit}}>
+    <h2>Вход</h2>
+    <p class="auth__hint">Влезте, за да продължите към приложението.</p>
+
+    <label class="auth__field">
+      <span>Потребител</span>
+      <input
+        type="text"
+        name="user"
+        autocomplete="username"
+        value={{this.user}}
+        {{on "input" this.updateUser}}
+      />
+    </label>
+
+    <label class="auth__field">
+      <span>Парола</span>
+      <input
+        type="password"
+        name="password"
+        autocomplete="current-password"
+        value={{this.password}}
+        {{on "input" this.updatePassword}}
+      />
+    </label>
+
+    <button type="submit" class="auth__button" disabled={{this.isDisabled}}>
+      {{if this.isSubmitting "Влизане..." "Вход"}}
+    </button>
+
+    {{#if this.error}}
+      <p class="auth__error" aria-live="polite">✗ {{this.error}}</p>
+    {{/if}}
+  </form>
+</section>
