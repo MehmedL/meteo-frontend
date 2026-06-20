@@ -13,6 +13,13 @@ export default class LoginController extends Controller {
   @tracked error = null;
   @tracked isSubmitting = false;
 
+  reset() {
+    this.user = '';
+    this.password = '';
+    this.error = null;
+    this.isSubmitting = false;
+  }
+
   get isDisabled() {
     return this.isSubmitting || !this.user.trim() || !this.password;
   }

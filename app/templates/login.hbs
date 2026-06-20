@@ -34,5 +34,10 @@
     {{#if this.error}}
       <p class="auth__error" aria-live="polite">✗ {{this.error}}</p>
     {{/if}}
+
+    <p class="auth__switch">
+      Нямате акаунт?
+      <LinkTo @route="register">Регистрация</LinkTo>
+    </p>
   </form>
 </section>

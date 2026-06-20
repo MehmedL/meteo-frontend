@@ -295,3 +295,112 @@ body {
   font-weight: 600;
   font-size: 0.9rem;
 }
+
+.auth__row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.auth__row .auth__field {
+  flex: 1;
+}
+
+.auth__field select,
+.auth__field input[type="number"] {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.auth__button--link {
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.auth__switch {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.welcome {
+  padding: 1.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  max-width: 40rem;
+}
+
+.welcome h2 {
+  margin: 0 0 0.5rem;
+  color: var(--color-text);
+}
+
+.welcome__text {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.account {
+  position: relative;
+}
+
+.account__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text-on-primary);
+  border: 1px solid rgb(248 250 251 / 50%);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.account__trigger:hover {
+  background: rgb(248 250 251 / 12%);
+}
+
+.account__trigger:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+.account__icon {
+  display: block;
+}
+
+.account__menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 10rem;
+  padding: 0.35rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+}
+
+.account__item {
+  padding: 0.5rem 0.75rem;
+  color: var(--color-text);
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.account__item:hover {
+  background: var(--color-surface-alt);
+}
