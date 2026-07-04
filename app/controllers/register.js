@@ -7,32 +7,42 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function plusOneYearISO() {
+function tomorrowISO() {
   const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+function addOneYearISO(dateStr) {
+  const d = new Date(dateStr);
   d.setFullYear(d.getFullYear() + 1);
   return d.toISOString().slice(0, 10);
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
 export default class RegisterController extends Controller {
   @service api;
   @service router;
 
-  @tracked user = '';
+  @tracked email = '';
   @tracked password = '';
   @tracked mode = 'window';
   @tracked from = todayISO();
-  @tracked to = plusOneYearISO();
+  @tracked to = tomorrowISO();
   @tracked nmax = 10;
   @tracked error = null;
   @tracked success = false;
   @tracked isSubmitting = false;
 
   reset() {
-    this.user = '';
+    this.email = '';
     this.password = '';
     this.mode = 'window';
     this.from = todayISO();
-    this.to = todayISO();
+    this.to = tomorrowISO();
     this.nmax = 10;
     this.error = null;
     this.success = false;
@@ -47,8 +57,27 @@ export default class RegisterController extends Controller {
     return this.mode === 'count';
   }
 
+  get toMin() {
+    return this.from;
+  }
+
+  get toMax() {
+    return addOneYearISO(this.from);
+  }
+
   get isDisabled() {
-    return this.isSubmitting || !this.user.trim() || !this.password;
+    if (this.isSubmitting || !isValidEmail(this.email) || !this.password) {
+      return true;
+    }
+
+    if (this.isCount) {
+      const n = Number(this.nmax);
+      if (!Number.isInteger(n) || n < 1 || n > 100000) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @action
@@ -72,7 +101,7 @@ export default class RegisterController extends Controller {
     }
 
     const body = {
-      user: this.user.trim(),
+      email: this.email.trim().toLowerCase(),
       password: this.password,
       mode: this.mode,
     };

@@ -1,13 +1,3 @@
-import Route from '@ember/routing/route';
-import { service } from '@ember/service';
+import AuthenticatedRoute from 'meteo-frontend/routes/-base/authenticated';
 
-export default class IndexRoute extends Route {
-  @service session;
-  @service router;
-
-  beforeModel() {
-    if (!this.session.isAuthenticated) {
-      this.router.transitionTo('login');
-    }
-  }
-}
+export default class IndexRoute extends AuthenticatedRoute {}

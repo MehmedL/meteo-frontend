@@ -3,30 +3,38 @@ import { action } from '@ember/object';
 import { service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
 export default class LoginController extends Controller {
   @service api;
   @service session;
   @service router;
 
-  @tracked user = '';
+  @tracked email = '';
   @tracked password = '';
   @tracked error = null;
   @tracked isSubmitting = false;
 
   reset() {
-    this.user = '';
+    this.email = '';
     this.password = '';
     this.error = null;
     this.isSubmitting = false;
   }
 
   get isDisabled() {
-    return this.isSubmitting || !this.user.trim() || !this.password;
+    return (
+      this.isSubmitting ||
+      !isValidEmail(this.email) ||
+      !this.password
+    );
   }
 
   @action
-  updateUser(event) {
-    this.user = event.target.value;
+  updateEmail(event) {
+    this.email = event.target.value;
     this.error = null;
   }
 
@@ -49,12 +57,12 @@ export default class LoginController extends Controller {
 
     try {
       const data = await this.api.post('/api/auth/login.php', {
-        user: this.user.trim(),
+        email: this.email.trim().toLowerCase(),
         password: this.password,
       });
 
       this.session.login(data);
-      this.user = '';
+      this.email = '';
       this.password = '';
       await this.router.transitionTo('index');
     } catch (e) {

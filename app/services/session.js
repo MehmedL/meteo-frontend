@@ -11,6 +11,27 @@ export default class SessionService extends Service {
     return Boolean(this.currentUser);
   }
 
+  get isAdmin() {
+    return this.currentUser?.role === 'admin';
+  }
+
+  get hasActiveAccess() {
+    if (!this.currentUser) {
+      return false;
+    }
+
+    if (this.isAdmin) {
+      return true;
+    }
+
+    return this.currentUser.accessActive !== false;
+  }
+
+  // Логнат и с валиден достъп (или администратор).
+  get canAccessApp() {
+    return this.isAuthenticated && this.hasActiveAccess;
+  }
+
   // Източник на истината е сървърът: проверяваме активната сесия през /me.
   async load() {
     try {

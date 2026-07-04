@@ -1,16 +1,6 @@
-import Route from '@ember/routing/route';
-import { service } from '@ember/service';
+import UnauthenticatedRoute from 'meteo-frontend/routes/-base/unauthenticated';
 
-export default class RegisterRoute extends Route {
-  @service session;
-  @service router;
-
-  beforeModel() {
-    if (this.session.isAuthenticated) {
-      this.router.transitionTo('index');
-    }
-  }
-
+export default class RegisterRoute extends UnauthenticatedRoute {
   setupController(controller) {
     super.setupController(...arguments);
     controller.reset();

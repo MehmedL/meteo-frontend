@@ -66,6 +66,11 @@ export default class ApiService extends Service {
     const formData = new FormData();
     formData.append(fieldName, file);
 
+    return this.submitForm(path, formData);
+  }
+
+  // Изпраща вече изграден FormData (няколко файла + полета) като multipart.
+  async submitForm(path, formData) {
     const response = await fetch(this.url(path), {
       method: 'POST',
       headers: { Accept: 'application/json' },
