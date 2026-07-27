@@ -3,13 +3,6 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { on } from '@ember/modifier';
 
-// Многократно използваемо поле за качване на файл: бутон за избор + drag-and-drop.
-// Аргументи:
-//   @label   - надпис на полето
-//   @accept  - HTML accept филтър (напр. "video/*")
-//   @file    - текущо избраният File (за да покаже името)
-//   @onSelect - action(file | null)
-//   @compact - по-компактен вариант за вложени форми
 export default class FileDrop extends Component {
   @tracked isDragOver = false;
   inputId = `file-drop-${Math.random().toString(36).slice(2, 9)}`;
@@ -20,10 +13,6 @@ export default class FileDrop extends Component {
 
   get isCompact() {
     return Boolean(this.args.compact);
-  }
-
-  get showClearBelow() {
-    return Boolean(this.fileName) && !this.isCompact;
   }
 
   @action
@@ -78,16 +67,13 @@ export default class FileDrop extends Component {
       >
         {{#if this.fileName}}
           <span class="filedrop__name">{{this.fileName}}</span>
-          {{#if this.isCompact}}
-            <button
-              type="button"
-              class="filedrop__clear filedrop__clear--inline"
-              aria-label="Премахни файл"
-              {{on "click" this.clear}}
-            >
-              ×
-            </button>
-          {{/if}}
+          <button
+            type="button"
+            class="filedrop__clear"
+            aria-label="Премахни файл"
+            {{on "click" this.clear}}
+          >
+          </button>
         {{else if this.isCompact}}
           <span class="filedrop__hint">{{@label}} — щракнете или пуснете</span>
         {{else}}
@@ -103,12 +89,6 @@ export default class FileDrop extends Component {
           {{on "change" this.onChange}}
         />
       </label>
-
-      {{#if this.showClearBelow}}
-        <button type="button" class="filedrop__clear" {{on "click" this.clear}}>
-          Премахни
-        </button>
-      {{/if}}
     </div>
   </template>
 }

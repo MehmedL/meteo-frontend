@@ -1,9 +1,6 @@
 import Route from '@ember/routing/route';
 import { service } from '@ember/service';
 
-// Catch-all рутер за всеки непознат път (/*path).
-// Пренасочва според състоянието на сесията:
-//   логнат → начало (index), нелогнат → login.
 export default class NotFoundRoute extends Route {
   @service session;
   @service router;

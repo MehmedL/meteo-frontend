@@ -11,7 +11,16 @@ import AccountMenu from 'meteo-frontend/components/account-menu';
         <h1>Метеорологични явления</h1>
       </LinkTo>
 
-      <AccountMenu @onLogout={{@controller.logout}} />
+      <div class="app-header__actions">
+        {{#if @controller.session.canAccessApp}}
+          {{#if @controller.onDataRoute}}
+            <LinkTo @route="index" class="app-header__link">Начало</LinkTo>
+          {{else}}
+            <LinkTo @route="search" class="app-header__link">Извличане на данни</LinkTo>
+          {{/if}}
+        {{/if}}
+        <AccountMenu @onLogout={{@controller.logout}} />
+      </div>
     </div>
   </header>
 

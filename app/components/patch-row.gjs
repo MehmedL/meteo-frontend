@@ -5,9 +5,6 @@ import FileDrop from 'meteo-frontend/components/file-drop';
 function includesId(list, id) {
   return list.includes(id);
 }
-
-// Един пач: избор на явления (много) + един .txt файл.
-// Аргументи: @patch, @phenomena, @onToggle, @onSelectTxt, @onToggleCollapse
 <template>
   <div class="patch {{if @patch.collapsed 'patch--collapsed'}}">
     <button

@@ -1,4 +1,3 @@
-/* eslint-disable warp-drive/no-external-request-patterns -- intentional centralized fetch layer; Warp Drive store not in use yet */
 import Service from '@ember/service';
 import config from 'meteo-frontend/config/environment';
 
@@ -49,6 +48,21 @@ export default class ApiService extends Service {
     return this.#handle(response);
   }
 
+  async getBlob(path) {
+    const response = await fetch(this.url(path), { credentials: 'include' });
+
+    const contentType = response.headers.get('Content-Type') ?? '';
+    if (!response.ok || contentType.includes('application/json')) {
+      const payload = await response.json().catch(() => null);
+      throw new ApiError(
+        payload?.error || `Заявката се провали (HTTP ${response.status})`,
+        { status: response.status, body: payload },
+      );
+    }
+
+    return response.blob();
+  }
+
   async post(path, body) {
     const response = await fetch(this.url(path), {
       method: 'POST',
@@ -69,7 +83,6 @@ export default class ApiService extends Service {
     return this.submitForm(path, formData);
   }
 
-  // Изпраща вече изграден FormData (няколко файла + полета) като multipart.
   async submitForm(path, formData) {
     const response = await fetch(this.url(path), {
       method: 'POST',

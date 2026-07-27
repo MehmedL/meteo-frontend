@@ -41,7 +41,7 @@ import { LinkTo } from '@ember/routing';
       </button>
 
       {{#if @controller.error}}
-        <p class="auth__error" aria-live="polite">✗ {{@controller.error}}</p>
+        <p class="auth__error" aria-live="polite">{{@controller.error}}</p>
       {{/if}}
 
       <p class="auth__switch">

@@ -6,6 +6,10 @@ export default class ApplicationController extends Controller {
   @service session;
   @service router;
 
+  get onDataRoute() {
+    return this.router.currentRouteName === 'search';
+  }
+
   @action
   async logout() {
     await this.session.logout();

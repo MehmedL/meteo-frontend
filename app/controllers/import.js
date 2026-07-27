@@ -4,9 +4,20 @@ import { service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 
 export const DIRECTIONS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-export const PATCH_COUNT = 9; // пачове 0..8
+export const PATCH_COUNT = 9;
 
-// Едно състояние на пач: избрани явления (много) + един txt файл.
+function toBackendDateTime(value) {
+  if (!value) {
+    return null;
+  }
+  const [datePart, timePart] = value.split('T');
+  if (!datePart || !timePart) {
+    return null;
+  }
+  const seconds = timePart.length === 5 ? `${timePart}:00` : timePart;
+  return `${datePart} ${seconds}`;
+}
+
 export class Patch {
   index;
   @tracked phenomena = [];
@@ -63,6 +74,10 @@ export default class ImportController extends Controller {
   @tracked showNewDevice = false;
   @tracked addingDevice = false;
 
+  @tracked newPhenomenonName = '';
+  @tracked showNewPhenomenon = false;
+  @tracked addingPhenomenon = false;
+
   @tracked xGPS = '';
   @tracked yGPS = '';
   @tracked dir = '';
@@ -83,6 +98,9 @@ export default class ImportController extends Controller {
     this.newDeviceName = '';
     this.showNewDevice = false;
     this.addingDevice = false;
+    this.newPhenomenonName = '';
+    this.showNewPhenomenon = false;
+    this.addingPhenomenon = false;
     this.xGPS = '';
     this.yGPS = '';
     this.dir = '';
@@ -118,10 +136,17 @@ export default class ImportController extends Controller {
     this.error = null;
   }
 
+  get panelOpen() {
+    return this.showNewDevice || this.showNewPhenomenon;
+  }
+
   @action
   toggleNewDevice() {
     this.showNewDevice = !this.showNewDevice;
-    if (!this.showNewDevice) {
+    if (this.showNewDevice) {
+      this.showNewPhenomenon = false;
+      this.newPhenomenonName = '';
+    } else {
       this.newDeviceName = '';
     }
     this.error = null;
@@ -154,6 +179,47 @@ export default class ImportController extends Controller {
       this.error = e.message || 'Устройството не може да бъде добавено.';
     } finally {
       this.addingDevice = false;
+    }
+  }
+
+  @action
+  toggleNewPhenomenon() {
+    this.showNewPhenomenon = !this.showNewPhenomenon;
+    if (this.showNewPhenomenon) {
+      this.showNewDevice = false;
+      this.newDeviceName = '';
+    } else {
+      this.newPhenomenonName = '';
+    }
+    this.error = null;
+  }
+
+  @action
+  async addPhenomenon() {
+    const name = this.newPhenomenonName.trim();
+    if (!name || this.addingPhenomenon) {
+      return;
+    }
+
+    this.addingPhenomenon = true;
+    this.error = null;
+
+    try {
+      const created = await this.api.post('/api/phenomenon/create.php', {
+        phenom: name,
+      });
+
+      const exists = this.phenomena.some((p) => p.id === created.id);
+      if (!exists) {
+        this.phenomena = [...this.phenomena, created];
+      }
+
+      this.newPhenomenonName = '';
+      this.showNewPhenomenon = false;
+    } catch (e) {
+      this.error = e.message || 'Явлението не може да бъде добавено.';
+    } finally {
+      this.addingPhenomenon = false;
     }
   }
 
@@ -194,6 +260,42 @@ export default class ImportController extends Controller {
     patch.collapsed = !patch.collapsed;
   }
 
+  get validationError() {
+    const missing = [];
+    if (!this.videoFile) {
+      missing.push('видео файл');
+    }
+    if (!this.imageFile) {
+      missing.push('изображение');
+    }
+    if (!this.zipFile) {
+      missing.push('zip файл');
+    }
+    if (this.device === '') {
+      missing.push('устройство');
+    }
+    if (this.xGPS === '') {
+      missing.push('X (GPS)');
+    }
+    if (this.yGPS === '') {
+      missing.push('Y (GPS)');
+    }
+    if (this.dir === '') {
+      missing.push('посока');
+    }
+    if (!this.sdata) {
+      missing.push('дата и час на записа');
+    }
+    if (!this.patches.some((patch) => patch.phenomena.length > 0)) {
+      missing.push('поне едно явление в поне един пач');
+    }
+
+    if (missing.length === 0) {
+      return null;
+    }
+    return `Липсват задължителни полета: ${missing.join(', ')}.`;
+  }
+
   @action
   async submit(event) {
     event.preventDefault();
@@ -202,9 +304,16 @@ export default class ImportController extends Controller {
       return;
     }
 
-    this.isSubmitting = true;
     this.error = null;
     this.success = null;
+
+    const validationError = this.validationError;
+    if (validationError) {
+      this.error = validationError;
+      return;
+    }
+
+    this.isSubmitting = true;
 
     try {
       const formData = new FormData();
@@ -241,7 +350,7 @@ export default class ImportController extends Controller {
         xGPS: this.xGPS === '' ? null : Number(this.xGPS),
         yGPS: this.yGPS === '' ? null : Number(this.yGPS),
         dir: this.dir === '' ? null : this.dir,
-        sdata: this.sdata === '' ? null : this.sdata,
+        sdata: toBackendDateTime(this.sdata),
         patches: patchesPayload,
       };
 

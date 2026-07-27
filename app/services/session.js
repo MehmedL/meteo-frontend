@@ -27,12 +27,10 @@ export default class SessionService extends Service {
     return this.currentUser.accessActive !== false;
   }
 
-  // Логнат и с валиден достъп (или администратор).
   get canAccessApp() {
     return this.isAuthenticated && this.hasActiveAccess;
   }
 
-  // Източник на истината е сървърът: проверяваме активната сесия през /me.
   async load() {
     try {
       this.currentUser = await this.api.get('/api/auth/me.php');
@@ -41,7 +39,6 @@ export default class SessionService extends Service {
     }
   }
 
-  // Извиква се след успешен POST към login.php (сесията вече е създадена на сървъра).
   login(user) {
     this.currentUser = user;
   }
