@@ -6,8 +6,8 @@ export default class ApplicationController extends Controller {
   @service session;
   @service router;
 
-  get onDataRoute() {
-    return this.router.currentRouteName === 'search';
+  get showFooter() {
+    return !['login', 'register'].includes(this.router.currentRouteName);
   }
 
   @action

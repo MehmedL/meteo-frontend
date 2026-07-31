@@ -13,11 +13,9 @@ import AccountMenu from 'meteo-frontend/components/account-menu';
 
       <div class="app-header__actions">
         {{#if @controller.session.canAccessApp}}
-          {{#if @controller.onDataRoute}}
-            <LinkTo @route="index" class="app-header__link">Начало</LinkTo>
-          {{else}}
-            <LinkTo @route="search" class="app-header__link">Извличане на данни</LinkTo>
-          {{/if}}
+          <LinkTo @route="index" class="app-header__link">Начало</LinkTo>
+          <LinkTo @route="search" class="app-header__link">Извличане на данни</LinkTo>
+          <LinkTo @route="dashboard" class="app-header__link">Статистика</LinkTo>
         {{/if}}
         <AccountMenu @onLogout={{@controller.logout}} />
       </div>
@@ -27,4 +25,10 @@ import AccountMenu from 'meteo-frontend/components/account-menu';
   <main class="app-main">
     {{outlet}}
   </main>
+
+  {{#if @controller.showFooter}}
+    <footer class="app-footer">
+      <p class="app-footer__text">Авторски колектив: Ивайло Атанасов, Боряна Пачеджиева, Добринка Петрова, Петя Павлова.<br />© Център за компетентност „Интелигентни мехатронни, eко- и енергоспестяващи системи и технологии“.</p>
+    </footer>
+  {{/if}}
 </template>
