@@ -12,9 +12,8 @@ export default class UnauthenticatedRoute extends Route {
     super.beforeModel(...arguments);
 
     if (this.session.canAccessApp) {
+      transition.abort();
       this.router.transitionTo('index');
     }
-
-    return transition;
   }
 }

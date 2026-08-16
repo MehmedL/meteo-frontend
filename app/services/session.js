@@ -43,11 +43,17 @@ export default class SessionService extends Service {
     this.currentUser = user;
   }
 
+  // Разлогва локално без заявка към сървъра — за случаите, в които
+  // сървърът вече ни е казал, че сесията е невалидна (HTTP 401).
+  expire() {
+    this.currentUser = null;
+  }
+
   async logout() {
     try {
       await this.api.post('/api/auth/logout.php', {});
     } finally {
-      this.currentUser = null;
+      this.expire();
     }
   }
 }

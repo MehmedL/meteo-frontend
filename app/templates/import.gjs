@@ -8,6 +8,10 @@ function eq(a, b) {
   return String(a) === String(b);
 }
 
+function includes(list, key) {
+  return list.includes(key);
+}
+
 <template>
   {{pageTitle "Импорт на видео"}}
 
@@ -48,20 +52,29 @@ function eq(a, b) {
           <p class="import__section-desc">Видео, изображение и архив за записа.</p>
           <div class="import__grid">
             <FileDrop
+              @id="import-field-video"
+              @invalid={{includes @controller.missingFields "videoFile"}}
               @label="Видео файл *"
               @accept="video/*"
+              @maxSize={{@controller.maxVideoSize}}
               @file={{@controller.videoFile}}
               @onSelect={{@controller.setVideo}}
             />
             <FileDrop
+              @id="import-field-image"
+              @invalid={{includes @controller.missingFields "imageFile"}}
               @label="Изображение *"
               @accept="image/*"
+              @maxSize={{@controller.maxImageSize}}
               @file={{@controller.imageFile}}
               @onSelect={{@controller.setImage}}
             />
             <FileDrop
+              @id="import-field-zip"
+              @invalid={{includes @controller.missingFields "zipFile"}}
               @label="Zip файл *"
               @accept=".zip,application/zip"
+              @maxSize={{@controller.maxZipSize}}
               @file={{@controller.zipFile}}
               @onSelect={{@controller.setZip}}
             />
@@ -75,12 +88,16 @@ function eq(a, b) {
             заснемане.</p>
 
           <div class="import__meta">
-            <div class="import__field import__field--wide">
+            <label class="import__field import__field--wide">
               <span class="import__label">Устройство
                 <span class="import__required">*</span></span>
               <select
-                class="import__control"
-                aria-label="Устройство"
+                id="import-field-device"
+                class="import__control
+                  {{if
+                    (includes @controller.missingFields 'device')
+                    'import__control--invalid'
+                  }}"
                 {{on "change" (fn @controller.updateField "device")}}
               >
                 <option value="" selected={{eq @controller.device ""}}>
@@ -95,15 +112,20 @@ function eq(a, b) {
                   </option>
                 {{/each}}
               </select>
-            </div>
+            </label>
 
             <label class="import__field">
               <span class="import__label">X (GPS)
                 <span class="import__required">*</span></span>
               <input
+                id="import-field-xgps"
                 type="number"
                 step="any"
-                class="import__control"
+                class="import__control
+                  {{if
+                    (includes @controller.missingFields 'xGPS')
+                    'import__control--invalid'
+                  }}"
                 value={{@controller.xGPS}}
                 {{on "input" (fn @controller.updateField "xGPS")}}
               />
@@ -113,9 +135,14 @@ function eq(a, b) {
               <span class="import__label">Y (GPS)
                 <span class="import__required">*</span></span>
               <input
+                id="import-field-ygps"
                 type="number"
                 step="any"
-                class="import__control"
+                class="import__control
+                  {{if
+                    (includes @controller.missingFields 'yGPS')
+                    'import__control--invalid'
+                  }}"
                 value={{@controller.yGPS}}
                 {{on "input" (fn @controller.updateField "yGPS")}}
               />
@@ -125,7 +152,12 @@ function eq(a, b) {
               <span class="import__label">Посока
                 <span class="import__required">*</span></span>
               <select
-                class="import__control"
+                id="import-field-dir"
+                class="import__control
+                  {{if
+                    (includes @controller.missingFields 'dir')
+                    'import__control--invalid'
+                  }}"
                 {{on "change" (fn @controller.updateField "dir")}}
               >
                 <option value="" selected={{eq @controller.dir ""}}>—</option>
@@ -142,8 +174,13 @@ function eq(a, b) {
               <span class="import__label">Дата и час на записа
                 <span class="import__required">*</span></span>
               <input
+                id="import-field-sdata"
                 type="datetime-local"
-                class="import__control"
+                class="import__control
+                  {{if
+                    (includes @controller.missingFields 'sdata')
+                    'import__control--invalid'
+                  }}"
                 value={{@controller.sdata}}
                 {{on "input" (fn @controller.updateField "sdata")}}
               />
@@ -161,6 +198,7 @@ function eq(a, b) {
               <h3
                 id="import-patches-heading"
                 class="import__section-title"
+                tabindex="-1"
               >Пачове</h3>
               <p class="import__section-desc">Явления и текстов файл за всеки
                 пач (0–8). Поне едно явление в поне един пач е задължително.</p>
@@ -180,7 +218,13 @@ function eq(a, b) {
             <span class="import__subtitle">Явления</span>
           </div>
 
-          <div class="import__patches">
+          <div
+            class="import__patches
+              {{if
+                (includes @controller.missingFields 'patches')
+                'import__patches--invalid'
+              }}"
+          >
             {{#each @controller.patches as |patch|}}
               <PatchRow
                 @patch={{patch}}

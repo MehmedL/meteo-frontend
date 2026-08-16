@@ -42,7 +42,12 @@ module.exports = function (environment) {
   }
 
   if (environment === 'production') {
-    // here you can enable a production-specific feature
+    if (!process.env.API_HOST) {
+      throw new Error(
+        'API_HOST environment variable must be set for production builds (backend URL, e.g. https://your-domain/meteo-api)',
+      );
+    }
+    ENV.APP.API_HOST = process.env.API_HOST;
   }
 
   return ENV;

@@ -1,16 +1,16 @@
 import AdminRoute from 'meteo-frontend/routes/-base/admin';
 import { service } from '@ember/service';
-import { hash } from 'rsvp';
 
 export default class ImportRoute extends AdminRoute {
   @service api;
 
-  model() {
-    return hash({
-      devices: this.api.get('/api/devices/index.php'),
-      phenomena: this.api.get('/api/phenomenon/index.php'),
-      cameraModes: this.api.get('/api/cameramode/index.php'),
-    });
+  async model() {
+    const [devices, phenomena, cameraModes] = await Promise.all([
+      this.api.get('/api/devices/index.php'),
+      this.api.get('/api/phenomenon/index.php'),
+      this.api.get('/api/cameramode/index.php'),
+    ]);
+    return { devices, phenomena, cameraModes };
   }
 
   setupController(controller, model) {

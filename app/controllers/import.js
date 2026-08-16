@@ -6,6 +6,20 @@ import { tracked } from '@glimmer/tracking';
 export const DIRECTIONS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
 export const PATCH_COUNT = 9;
 
+// DOM id-та на съответните полета в import.gjs — ползват се, за да можем
+// да скролнем/фокусираме първото липсващо задължително поле при submit.
+const REQUIRED_FIELD_IDS = {
+  videoFile: 'import-field-video',
+  imageFile: 'import-field-image',
+  zipFile: 'import-field-zip',
+  device: 'import-field-device',
+  xGPS: 'import-field-xgps',
+  yGPS: 'import-field-ygps',
+  dir: 'import-field-dir',
+  sdata: 'import-field-sdata',
+  patches: 'import-patches-heading',
+};
+
 function toBackendDateTime(value) {
   if (!value) {
     return null;
@@ -61,6 +75,12 @@ export default class ImportController extends Controller {
 
   directions = DIRECTIONS;
 
+  // Съвпадат с лимитите за размер на файла в backend config/uploads.php —
+  // проверяваме клиентски, за да не чакаме пълен upload на твърде голям файл.
+  maxVideoSize = 1024 * 1024 * 1024;
+  maxImageSize = 25 * 1024 * 1024;
+  maxZipSize = 512 * 1024 * 1024;
+
   @tracked devices = [];
   @tracked phenomena = [];
   @tracked cameraModes = [];
@@ -89,6 +109,7 @@ export default class ImportController extends Controller {
   @tracked isSubmitting = false;
   @tracked error = null;
   @tracked success = null;
+  @tracked submitAttempted = false;
 
   reset() {
     this.videoFile = null;
@@ -110,6 +131,7 @@ export default class ImportController extends Controller {
     this.isSubmitting = false;
     this.error = null;
     this.success = null;
+    this.submitAttempted = false;
   }
 
   @action
@@ -260,40 +282,53 @@ export default class ImportController extends Controller {
     patch.collapsed = !patch.collapsed;
   }
 
-  get validationError() {
+  // Ключове на задължителните полета, които все още не са попълнени,
+  // в реда, в който се показват във формата.
+  get missingRequiredKeys() {
     const missing = [];
     if (!this.videoFile) {
-      missing.push('видео файл');
+      missing.push('videoFile');
     }
     if (!this.imageFile) {
-      missing.push('изображение');
+      missing.push('imageFile');
     }
     if (!this.zipFile) {
-      missing.push('zip файл');
+      missing.push('zipFile');
     }
     if (this.device === '') {
-      missing.push('устройство');
+      missing.push('device');
     }
     if (this.xGPS === '') {
-      missing.push('X (GPS)');
+      missing.push('xGPS');
     }
     if (this.yGPS === '') {
-      missing.push('Y (GPS)');
+      missing.push('yGPS');
     }
     if (this.dir === '') {
-      missing.push('посока');
+      missing.push('dir');
     }
     if (!this.sdata) {
-      missing.push('дата и час на записа');
+      missing.push('sdata');
     }
     if (!this.patches.some((patch) => patch.phenomena.length > 0)) {
-      missing.push('поне едно явление в поне един пач');
+      missing.push('patches');
     }
+    return missing;
+  }
 
-    if (missing.length === 0) {
-      return null;
+  // Показваме маркировка по полетата само след първи неуспешен опит за
+  // запис — преди това потребителят просто попълва формата необезпокояван.
+  get missingFields() {
+    return this.submitAttempted ? this.missingRequiredKeys : [];
+  }
+
+  focusField(key) {
+    const element = document.getElementById(REQUIRED_FIELD_IDS[key]);
+    if (!element) {
+      return;
     }
-    return `Липсват задължителни полета: ${missing.join(', ')}.`;
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    element.focus?.({ preventScroll: true });
   }
 
   @action
@@ -307,12 +342,14 @@ export default class ImportController extends Controller {
     this.error = null;
     this.success = null;
 
-    const validationError = this.validationError;
-    if (validationError) {
-      this.error = validationError;
+    const missing = this.missingRequiredKeys;
+    if (missing.length > 0) {
+      this.submitAttempted = true;
+      this.focusField(missing[0]);
       return;
     }
 
+    this.submitAttempted = false;
     this.isSubmitting = true;
 
     try {

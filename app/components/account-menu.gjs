@@ -2,8 +2,19 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { on } from '@ember/modifier';
+import { modifier } from 'ember-modifier';
 import { LinkTo } from '@ember/routing';
 import { service } from '@ember/service';
+
+const closeOnOutsideClick = modifier((element, [close]) => {
+  function handleClick(event) {
+    if (!element.contains(event.target)) {
+      close();
+    }
+  }
+  document.addEventListener('click', handleClick, true);
+  return () => document.removeEventListener('click', handleClick, true);
+});
 
 export default class AccountMenu extends Component {
   @service session;
@@ -26,7 +37,7 @@ export default class AccountMenu extends Component {
   }
 
   <template>
-    <div class="account">
+    <div class="account" {{closeOnOutsideClick this.close}}>
       <button type="button" class="account__trigger" aria-label="Профил" aria-haspopup="true" aria-expanded={{if this.isOpen "true" "false"}} {{on "click" this.toggle}}>
         <svg class="account__icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
           <circle cx="12" cy="8" r="4" fill="currentColor" />

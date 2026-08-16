@@ -203,6 +203,15 @@ export default class SearchController extends Controller {
       column.min = '';
       column.max = '';
     }
+
+    this.appliedRanges = [];
+    this.results = [];
+    this.total = 0;
+    this.error = null;
+    this.hasSearched = false;
+    this.expandedId = null;
+    this.detailById = {};
+    this.detailError = null;
   }
 
   @action

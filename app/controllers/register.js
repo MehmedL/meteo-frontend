@@ -119,6 +119,7 @@ export default class RegisterController extends Controller {
     try {
       await this.api.post('/api/auth/register.php', body);
       this.success = true;
+      this.password = '';
     } catch (e) {
       this.error = e.message || 'Възникна грешка при регистрацията.';
     } finally {

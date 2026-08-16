@@ -34,7 +34,14 @@
   box-sizing: border-box;
 }
 
+html {
+  height: 100%;
+}
+
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
   margin: 0;
   font-family:
     system-ui,
@@ -173,6 +180,7 @@ body {
 }
 
 .app-main {
+  flex: 1 0 auto;
   padding: 1.5rem;
 }
 
@@ -181,69 +189,6 @@ body {
   flex-direction: column;
   gap: 1.5rem;
   max-width: 100%;
-}
-
-.upload {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  align-items: flex-start;
-  padding: 1.25rem;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: 10px;
-  box-shadow: var(--shadow-sm);
-  max-width: 32rem;
-}
-
-.upload h3 {
-  margin: 0;
-  color: var(--color-text);
-}
-
-.upload__field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-}
-
-.upload__button {
-  padding: 0.5rem 1.1rem;
-  background: var(--color-primary);
-  color: var(--color-text-on-primary);
-  border: none;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.upload__button:disabled {
-  background: var(--color-disabled);
-  cursor: not-allowed;
-}
-
-.upload__button:focus-visible {
-  outline: 2px solid var(--color-primary-light);
-  outline-offset: 2px;
-}
-
-.upload__button:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-}
-
-.upload__ok {
-  margin: 0;
-  color: var(--color-success);
-  font-weight: 600;
-}
-
-.upload__error {
-  margin: 0;
-  color: var(--color-error);
-  font-weight: 600;
 }
 
 .data {
@@ -515,104 +460,6 @@ body {
   color: var(--color-text-muted);
 }
 
-.welcome {
-  padding: 1.5rem;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: 10px;
-  box-shadow: var(--shadow-sm);
-  max-width: 40rem;
-}
-
-.welcome h2 {
-  margin: 0 0 0.5rem;
-  color: var(--color-text);
-}
-
-.welcome__text {
-  margin: 0;
-  color: var(--color-text-muted);
-}
-
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.75rem;
-  width: 100%;
-  max-width: 66rem;
-  margin: 0 auto;
-}
-
-.tile {
-  position: relative;
-  padding: 2rem 2rem 2rem 2.25rem;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: 12px;
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  transition:
-    transform var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) ease;
-}
-
-.tile:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgb(58 74 86 / 14%);
-}
-
-.tile__accent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 5px;
-  height: 100%;
-  background: var(--color-primary);
-}
-
-.tile__image {
-  display: block;
-  width: calc(100% + 2.25rem + 2rem);
-  height: 13rem;
-  margin: -2rem -2rem 1.25rem -2.25rem;
-  object-fit: cover;
-  background: var(--color-surface-alt);
-  border-radius: 12px 12px 0 0;
-}
-
-.tile__title {
-  margin: 0 0 0.6rem;
-  color: var(--color-text);
-  font-size: 1.15rem;
-  font-weight: 600;
-}
-
-.tile__text {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-.tile__text + .tile__list {
-  margin-top: 0.6rem;
-}
-
-.tile__list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin: 0;
-  padding-left: 1.1rem;
-  color: var(--color-text-muted);
-  font-size: 0.92rem;
-  line-height: 1.5;
-}
-
-.tile__list strong {
-  color: var(--color-text);
-}
-
 .app-footer {
   padding: 1.25rem 1.5rem;
   background: var(--color-primary-dark);
@@ -624,12 +471,6 @@ body {
   color: rgb(248 250 251 / 78%);
   font-size: 0.82rem;
   line-height: 1.6;
-}
-
-@media (width <= 800px) {
-  .tiles {
-    grid-template-columns: 1fr;
-  }
 }
 
 .account {
@@ -895,12 +736,6 @@ body {
   grid-column: 1 / -1;
 }
 
-.import__row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
 .import__field {
   display: flex;
   flex-direction: column;
@@ -942,6 +777,10 @@ body {
   outline-offset: 1px;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgb(122 155 178 / 20%);
+}
+
+.import__control--invalid {
+  border-color: var(--color-error);
 }
 
 .search__range .import__control {
@@ -1108,6 +947,12 @@ body {
   gap: 0.5rem;
 }
 
+.import__patches--invalid {
+  padding: 0.5rem;
+  border: 1.5px dashed var(--color-error);
+  border-radius: 10px;
+}
+
 .import__add-patch {
   flex-shrink: 0;
   animation: fade-in var(--duration-normal) var(--ease-out);
@@ -1169,14 +1014,6 @@ body {
 
 .import__button:active:not(:disabled) {
   transform: translateY(0);
-}
-
-.import__ok {
-  margin: 0.75rem 0 0;
-  color: var(--color-success);
-  font-weight: 600;
-  font-size: 0.9rem;
-  animation: scale-in var(--duration-normal) var(--ease-spring);
 }
 
 .import__error {
@@ -1281,6 +1118,17 @@ body {
   background: var(--color-error);
   color: #fff;
   border-color: var(--color-error);
+}
+
+.filedrop--invalid .filedrop__zone {
+  border-color: var(--color-error);
+}
+
+.filedrop__error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-error);
+  font-weight: 600;
 }
 
 .filedrop--compact .filedrop__zone {
@@ -1553,4 +1401,85 @@ body {
 .stats__bar-value {
   color: var(--color-text-muted);
   text-align: right;
+}
+
+.zigzag {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  width: 100%;
+  max-width: 66rem;
+  margin: 0 auto;
+}
+
+.zigzag__row {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.zigzag__row--reverse {
+  flex-direction: row-reverse;
+}
+
+.zigzag__text {
+  flex: 1 1 50%;
+  min-width: 0;
+}
+
+.zigzag__title {
+  margin: 0 0 0.6rem;
+  color: var(--color-text);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.zigzag__body {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.zigzag__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.zigzag__body + .zigzag__list {
+  margin-top: 0.6rem;
+}
+
+.zigzag__media {
+  flex: 1 1 50%;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.zigzag__image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-sm);
+  background: var(--color-surface);
+}
+
+.zigzag__image--cover {
+  object-fit: cover;
+}
+
+@media (width <= 720px) {
+  .zigzag__row,
+  .zigzag__row--reverse {
+    flex-direction: column;
+  }
 }

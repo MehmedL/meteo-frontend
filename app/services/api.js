@@ -1,4 +1,5 @@
 import Service from '@ember/service';
+import { service } from '@ember/service';
 import config from 'meteo-frontend/config/environment';
 
 const API_HOST = config.APP.API_HOST;
@@ -13,12 +14,26 @@ class ApiError extends Error {
 }
 
 export default class ApiService extends Service {
+  @service session;
+  @service router;
+
   get host() {
     return API_HOST;
   }
 
   url(path) {
     return `${API_HOST}${path.startsWith('/') ? path : `/${path}`}`;
+  }
+
+  // Ако вече бяхме логнати и сървърът върне 401, сесията е изтекла
+  // междувременно (напр. изтекла бисквитка) — разлогваме и пренасочваме.
+  // Не пипаме анонимните 401-и (напр. началната /auth/me.php проверка),
+  // за да не редиректваме потребители, които просто не са логнати.
+  #handleUnauthorized(status) {
+    if (status === 401 && this.session.currentUser) {
+      this.session.expire();
+      this.router.transitionTo('login');
+    }
   }
 
   async #handle(response) {
@@ -32,6 +47,7 @@ export default class ApiService extends Service {
     }
 
     if (!response.ok || payload?.success === false) {
+      this.#handleUnauthorized(response.status);
       const message =
         payload?.error || `Заявката се провали (HTTP ${response.status})`;
       throw new ApiError(message, { status: response.status, body: payload });
@@ -54,6 +70,7 @@ export default class ApiService extends Service {
     const contentType = response.headers.get('Content-Type') ?? '';
     if (!response.ok || contentType.includes('application/json')) {
       const payload = await response.json().catch(() => null);
+      this.#handleUnauthorized(response.status);
       throw new ApiError(
         payload?.error || `Заявката се провали (HTTP ${response.status})`,
         { status: response.status, body: payload },

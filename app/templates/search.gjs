@@ -341,7 +341,7 @@ function measurementValue(measurement, key) {
                   </tr>
                   {{#if (eq @controller.expandedId row.id)}}
                     <tr class="detail__row">
-                      <td colspan="10">
+                      <td colspan="7">
                         {{#if (eq @controller.detailLoadingId row.id)}}
                           <p class="detail__status">Зареждане...</p>
                         {{else if @controller.detailError}}
