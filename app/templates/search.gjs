@@ -2,7 +2,11 @@ import { pageTitle } from 'ember-page-title';
 import { on } from '@ember/modifier';
 import { fn } from '@ember/helper';
 import { modifier } from 'ember-modifier';
-import { filterMeasurementsByRanges } from 'meteo-frontend/controllers/search';
+import {
+  filterMeasurementsByRanges,
+  MAX_DOWNLOAD_SELECTION,
+  DOWNLOAD_FILE_TYPES,
+} from 'meteo-frontend/controllers/search';
 
 const closeOnOutsideClick = modifier((element, [close]) => {
   function handleClick(event) {
@@ -32,6 +36,31 @@ function eqStr(a, b) {
 
 function detailFor(detailById, id) {
   return detailById[id];
+}
+
+function isFileSelected(selectedFiles, id, type) {
+  return selectedFiles.some((f) => f.id === id && f.type === type);
+}
+
+function isFileAvailable(row, fileType) {
+  return !!row[fileType.hasKey];
+}
+
+function isFileSelectionDisabled(selectedFiles, row, fileType) {
+  if (!isFileAvailable(row, fileType)) {
+    return true;
+  }
+
+  return (
+    !isFileSelected(selectedFiles, row.id, fileType.key) &&
+    selectedFiles.length >= MAX_DOWNLOAD_SELECTION
+  );
+}
+
+function fileTypeLabelClass(row, fileType) {
+  return isFileAvailable(row, fileType)
+    ? 'data__filetype'
+    : 'data__filetype data__filetype--unavailable';
 }
 
 const MEASUREMENT_COLUMNS = [
@@ -299,11 +328,42 @@ function measurementValue(measurement, key) {
       <div class="data">
         <h3>Резултати ({{@controller.total}})</h3>
         {{#if @controller.results.length}}
+          <div class="data__toolbar">
+            <span class="data__selection-count">
+              Избрани: {{@controller.selectedCount}}/{{MAX_DOWNLOAD_SELECTION}}
+            </span>
+            {{#if @controller.selectedCount}}
+              <button
+                type="button"
+                class="import__secondary"
+                {{on "click" @controller.clearSelection}}
+              >
+                Изчисти избора
+              </button>
+            {{/if}}
+            <button
+              type="button"
+              class="import__secondary"
+              disabled={{@controller.downloadSelectedDisabled}}
+              {{on "click" @controller.downloadSelectedZip}}
+            >
+              {{if
+                @controller.isDownloadingZip
+                "Изготвяне на архив..."
+                "Свали избраните файлове"
+              }}
+            </button>
+          </div>
+          {{#if @controller.error}}
+            <p class="import__error" aria-live="polite">
+              {{@controller.error}}</p>
+          {{/if}}
           <div class="data__scroll">
             <table class="data__table">
               <thead>
                 <tr>
                   <th></th>
+                  <th>Файлове</th>
                   <th>Устройство</th>
                   <th>Дата и час</th>
                   <th>Посока</th>
@@ -315,6 +375,43 @@ function measurementValue(measurement, key) {
               <tbody>
                 {{#each @controller.results as |row|}}
                   <tr>
+                    <td>
+                      <div class="data__filetypes">
+                        {{#each DOWNLOAD_FILE_TYPES as |fileType|}}
+                          <label
+                            class={{fileTypeLabelClass row fileType}}
+                            title={{if
+                              (isFileAvailable row fileType)
+                              ""
+                              "Няма качен файл"
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={{isFileSelected
+                                @controller.selectedFiles
+                                row.id
+                                fileType.key
+                              }}
+                              disabled={{isFileSelectionDisabled
+                                @controller.selectedFiles
+                                row
+                                fileType
+                              }}
+                              {{on
+                                "change"
+                                (fn
+                                  @controller.toggleFileSelect
+                                  row.id
+                                  fileType.key
+                                )
+                              }}
+                            />
+                            {{fileType.label}}
+                          </label>
+                        {{/each}}
+                      </div>
+                    </td>
                     <td>
                       <button
                         type="button"
@@ -341,7 +438,7 @@ function measurementValue(measurement, key) {
                   </tr>
                   {{#if (eq @controller.expandedId row.id)}}
                     <tr class="detail__row">
-                      <td colspan="7">
+                      <td colspan="8">
                         {{#if (eq @controller.detailLoadingId row.id)}}
                           <p class="detail__status">Зареждане...</p>
                         {{else if @controller.detailError}}

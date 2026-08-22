@@ -17,6 +17,14 @@ export const TXT_COLUMN_GROUPS = [
   { key: 'misc', columns: ['Frame'] },
 ];
 
+export const MAX_DOWNLOAD_SELECTION = 30;
+
+export const DOWNLOAD_FILE_TYPES = [
+  { key: 'image', label: 'Снимка', hasKey: 'hasImage' },
+  { key: 'video', label: 'Видео', hasKey: 'hasVideo' },
+  { key: 'zip', label: 'ZIP', hasKey: 'hasZip' },
+];
+
 const RANGE_KEY_TO_MEASUREMENT_KEY = {
   Frame: 'frame',
   Intens: 'intens',
@@ -148,6 +156,17 @@ export default class SearchController extends Controller {
   @tracked detailLoadingId = null;
   @tracked detailError = null;
 
+  @tracked selectedFiles = [];
+  @tracked isDownloadingZip = false;
+
+  get selectedCount() {
+    return this.selectedFiles.length;
+  }
+
+  get downloadSelectedDisabled() {
+    return this.isDownloadingZip || this.selectedFiles.length === 0;
+  }
+
   @action
   updateField(field, event) {
     this[field] = event.target.value;
@@ -212,6 +231,70 @@ export default class SearchController extends Controller {
     this.expandedId = null;
     this.detailById = {};
     this.detailError = null;
+    this.selectedFiles = [];
+  }
+
+  @action
+  toggleFileSelect(id, type) {
+    const isSelected = this.selectedFiles.some(
+      (f) => f.id === id && f.type === type,
+    );
+
+    if (isSelected) {
+      this.selectedFiles = this.selectedFiles.filter(
+        (f) => !(f.id === id && f.type === type),
+      );
+    } else if (this.selectedFiles.length < MAX_DOWNLOAD_SELECTION) {
+      this.selectedFiles = [...this.selectedFiles, { id, type }];
+    }
+  }
+
+  @action
+  clearSelection() {
+    this.selectedFiles = [];
+  }
+
+  @action
+  async downloadSelectedZip() {
+    if (this.selectedFiles.length === 0) {
+      return;
+    }
+
+    this.isDownloadingZip = true;
+    this.error = null;
+
+    try {
+      const params = new URLSearchParams();
+      for (const { id, type } of this.selectedFiles) {
+        params.append('items[]', `${id}:${type}`);
+      }
+
+      const { blob, headers } = await this.api.getBlobWithHeaders(
+        `/api/videofile/download-batch.php?${params.toString()}`,
+      );
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `videofile_files_${Date.now()}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+
+      const skipped = Number(headers.get('X-Download-Batch-Skipped') ?? 0);
+      const total = Number(headers.get('X-Download-Batch-Total') ?? 0);
+      if (skipped > 0) {
+        this.error = `${skipped} от ${total} файла не бяха намерени на сървъра и не са включени в архива.`;
+      }
+    } catch (e) {
+      this.error =
+        e.status === 429
+          ? 'Сървърът обработва твърде много заявки в момента. Опитайте отново след малко.'
+          : e.message || 'Грешка при изтегляне на файловете.';
+    } finally {
+      this.isDownloadingZip = false;
+    }
   }
 
   @action
@@ -292,6 +375,7 @@ export default class SearchController extends Controller {
     this.expandedId = null;
     this.detailById = {};
     this.detailError = null;
+    this.selectedFiles = [];
 
     try {
       const params = this.buildSearchParams();

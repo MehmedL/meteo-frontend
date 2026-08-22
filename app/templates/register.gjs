@@ -49,7 +49,7 @@ import { LinkTo } from '@ember/routing';
           <span>Тип достъп</span>
           <select {{on "change" @controller.setMode}}>
             <option value="window" selected={{@controller.isWindow}}>
-              Времеви прозорец (от–до, макс. 1 година)
+              Времеви прозорец (от–до, макс. 10 дни)
             </option>
             <option value="count" selected={{@controller.isCount}}>
               Брой влизания
@@ -84,6 +84,7 @@ import { LinkTo } from '@ember/routing';
             <input
               type="number"
               min="1"
+              max="10"
               value={{@controller.nmax}}
               {{on "input" (fn @controller.updateField "nmax")}}
             />

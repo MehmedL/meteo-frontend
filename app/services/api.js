@@ -65,6 +65,11 @@ export default class ApiService extends Service {
   }
 
   async getBlob(path) {
+    const { blob } = await this.getBlobWithHeaders(path);
+    return blob;
+  }
+
+  async getBlobWithHeaders(path) {
     const response = await fetch(this.url(path), { credentials: 'include' });
 
     const contentType = response.headers.get('Content-Type') ?? '';
@@ -77,7 +82,7 @@ export default class ApiService extends Service {
       );
     }
 
-    return response.blob();
+    return { blob: await response.blob(), headers: response.headers };
   }
 
   async post(path, body) {

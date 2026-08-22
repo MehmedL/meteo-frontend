@@ -204,6 +204,37 @@ body {
   color: var(--color-text);
 }
 
+.data__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.data__selection-count {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin-right: auto;
+}
+
+.data__filetypes {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.data__filetype {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: normal;
+  white-space: nowrap;
+}
+
+.data__filetype--unavailable {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
 .data__scroll {
   overflow-x: auto;
 }

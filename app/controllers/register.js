@@ -13,9 +13,9 @@ function tomorrowISO() {
   return d.toISOString().slice(0, 10);
 }
 
-function addOneYearISO(dateStr) {
+function addMaxWindowISO(dateStr) {
   const d = new Date(dateStr);
-  d.setFullYear(d.getFullYear() + 1);
+  d.setDate(d.getDate() + 10);
   return d.toISOString().slice(0, 10);
 }
 
@@ -62,7 +62,7 @@ export default class RegisterController extends Controller {
   }
 
   get toMax() {
-    return addOneYearISO(this.from);
+    return addMaxWindowISO(this.from);
   }
 
   get isDisabled() {
@@ -72,7 +72,13 @@ export default class RegisterController extends Controller {
 
     if (this.isCount) {
       const n = Number(this.nmax);
-      if (!Number.isInteger(n) || n < 1 || n > 100000) {
+      if (!Number.isInteger(n) || n < 1 || n > 10) {
+        return true;
+      }
+    }
+
+    if (this.isWindow) {
+      if (!this.from || !this.to || this.to < this.from || this.to > this.toMax) {
         return true;
       }
     }
@@ -83,6 +89,11 @@ export default class RegisterController extends Controller {
   @action
   updateField(field, event) {
     this[field] = event.target.value;
+
+    if (field === 'from' && this.to > this.toMax) {
+      this.to = this.toMax;
+    }
+
     this.error = null;
   }
 
